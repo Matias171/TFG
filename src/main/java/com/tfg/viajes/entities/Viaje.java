@@ -1,34 +1,35 @@
 package com.tfg.viajes.entities;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "viaje")
 public class Viaje {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    private String nombre;
-    private LocalDate fechaInicio;
-    private LocalDate fechaFin;
+	@Column(nullable = false)
+	private String nombre;
 
-    @ManyToOne // muchos viajes, un creador
-    @JoinColumn(name = "creador_id")
-    private Usuario creador;
+	private String descripcion;
+	private String destino;
 
-    @ManyToMany // muchos viajes, muchos participantes
-    @JoinTable(name = "viaje_participantes",
-        joinColumns = @JoinColumn(name = "viaje_id"),
-        inverseJoinColumns = @JoinColumn(name = "usuario_id"))
-    private List<Usuario> participantes = new ArrayList<>();
+	private LocalDate fechaInicio;
+	private LocalDate fechaFin;
 
-    
-    // getters y setters
+	@ManyToOne
+	@JoinColumn(name = "creador_id")
+	private Usuario creador;
+
+	@OneToMany(mappedBy = "viaje")
+	private List<Participante> participantes = new ArrayList<>();
+
+	// GETTERS Y SETTERS
 	public Long getId() {
 		return id;
 	}
@@ -43,6 +44,22 @@ public class Viaje {
 
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
+	}
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+
+	public String getDestino() {
+		return destino;
+	}
+
+	public void setDestino(String destino) {
+		this.destino = destino;
 	}
 
 	public LocalDate getFechaInicio() {
@@ -69,14 +86,11 @@ public class Viaje {
 		this.creador = creador;
 	}
 
-	public List<Usuario> getParticipantes() {
+	public List<Participante> getParticipantes() {
 		return participantes;
 	}
 
-	public void setParticipantes(List<Usuario> participantes) {
+	public void setParticipantes(List<Participante> participantes) {
 		this.participantes = participantes;
 	}
-
-
-    
 }
