@@ -27,7 +27,7 @@ public class Participante {
 	private Usuario usuario;
 	
 	@ManyToOne
-	@JoinColumn(name = "usuario_id")	// columna en la tabla participantes
+	@JoinColumn(name = "viaje_id")	// columna en la tabla participantes
 	private Viaje viaje;
 
 	
@@ -38,7 +38,7 @@ public class Participante {
 	}
 
 	public void setId(Long id) {
-		Id = id;
+		this.Id = id;
 	}
 
 	public Usuario getUsuario() {
