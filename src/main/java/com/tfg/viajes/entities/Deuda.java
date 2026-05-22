@@ -20,55 +20,54 @@ public class Deuda {
 	@ManyToOne
 	@JoinColumn(name = "viaje_id")
 	private Viaje viaje; // A qué viaje pertenece esta deuda
-// GETTERS
 
+	// GETTERS AND SETTERS
 	public Long getId() {
 		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public Usuario getDeudor() {
 		return deudor;
 	}
 
-	public Usuario getAcreedor() {
-		return acreedor;
-	}
-
-	public Double getCantidad() {
-		return cantidad;
-	}
-
-	public Boolean getPagada() {
-		return pagada;
-	}
-
-	public Viaje getViaje() {
-		return viaje;
-	}
-
-// SETTERS
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
 	public void setDeudor(Usuario deudor) {
 		this.deudor = deudor;
+	}
+
+	public Usuario getAcreedor() {
+		return acreedor;
 	}
 
 	public void setAcreedor(Usuario acreedor) {
 		this.acreedor = acreedor;
 	}
 
+	public Double getCantidad() {
+		return cantidad;
+	}
+
 	public void setCantidad(Double cantidad) {
 		this.cantidad = cantidad;
+	}
+
+	public Boolean getPagada() {
+		return pagada;
 	}
 
 	public void setPagada(Boolean pagada) {
 		this.pagada = pagada;
 	}
 
+	public Viaje getViaje() {
+		return viaje;
+	}
+
 	public void setViaje(Viaje viaje) {
 		this.viaje = viaje;
 	}
+
 }
