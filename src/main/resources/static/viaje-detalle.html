@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalle del Viaje — ViajesApp</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --azul: #1D4E6B;
+      --azul-claro: #2E7DA6;
+      --acento: #F0A500;
+      --fondo: #F7F9FC;
+      --verde: #1D9E75;
+      --rojo: #E05252;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--fondo); min-height: 100vh; }
+
+    nav {
+      background: var(--azul);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 22px; color: white; }
+    .nav-logo span { color: var(--acento); }
+    .btn-volver {
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      color: white;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-volver:hover { background: rgba(255,255,255,0.1); color: white; }
+
+    .contenido { max-width: 960px; margin: 36px auto; padding: 0 20px; }
+
+    /* CABECERA VIAJE */
+    .viaje-header {
+      background: white;
+      border-radius: 16px;
+      padding: 28px 32px;
+      box-shadow: 0 2px 16px rgba(29,78,107,0.08);
+      margin-bottom: 24px;
+    }
+    .viaje-destino { font-size: 12px; color: var(--azul-claro); text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
+    .viaje-nombre { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--azul); margin: 4px 0 8px; }
+    .viaje-fechas { font-size: 14px; color: #888; }
+    .viaje-descripcion { font-size: 14px; color: #555; margin-top: 8px; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 2px solid #E8EEF4; }
+    .tab {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #888;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color .2s, border-color .2s;
+    }
+    .tab.activo { color: var(--azul); border-color: var(--azul); }
+    .tab:hover { color: var(--azul); }
+    .panel { display: none; }
+    .panel.activo { display: block; }
+
+    /* SECCIÓN BLANCA */
+    .seccion {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 16px rgba(29,78,107,0.08);
+      margin-bottom: 20px;
+    }
+    .seccion-titulo {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--azul);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* PARTICIPANTES */
+    .lista-participantes { display: flex; flex-wrap: wrap; gap: 10px; }
+    .badge-part {
+      background: #EEF4F8;
+      color: var(--azul);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* GASTOS */
+    .gasto-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid #F0F4F8;
+    }
+    .gasto-item:last-child { border-bottom: none; }
+    .gasto-desc { font-size: 14px; font-weight: 500; color: var(--azul); }
+    .gasto-pagador { font-size: 12px; color: #888; margin-top: 2px; }
+    .gasto-importe { font-size: 16px; font-weight: 600; color: var(--azul); }
+    .gasto-acciones { display: flex; gap: 8px; margin-left: 16px; }
+    .btn-eliminar {
+      background: #FEF2F2;
+      border: none;
+      color: var(--rojo);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-eliminar:hover { background: #FECACA; }
+
+    /* BALANCE */
+    .balance-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid #F0F4F8;
+    }
+    .balance-item:last-child { border-bottom: none; }
+    .balance-nombre { font-size: 14px; font-weight: 500; color: var(--azul); }
+    .balance-positivo { font-size: 15px; font-weight: 600; color: var(--verde); }
+    .balance-negativo { font-size: 15px; font-weight: 600; color: var(--rojo); }
+    .balance-neutro { font-size: 15px; font-weight: 600; color: #888; }
+
+    /* DEUDAS */
+    .deuda-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px;
+      background: #F7F9FC;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .deuda-info { font-size: 14px; color: var(--azul); }
+    .deuda-info strong { color: var(--rojo); }
+    .deuda-cantidad { font-size: 15px; font-weight: 600; color: var(--azul); margin: 0 16px; }
+    .btn-pagar {
+      background: var(--verde);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-pagar:hover { opacity: .85; }
+    .deuda-pagada { opacity: .5; }
+    .badge-pagada {
+      background: #D1FAE5;
+      color: var(--verde);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* BOTONES */
+    .btn-accion {
+      background: var(--azul);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-accion:hover { background: var(--azul-claro); }
+    .btn-calcular {
+      background: var(--acento);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .btn-calcular:hover { background: #d4920a; }
+
+    /* MODAL */
+    .modal-content { border-radius: 16px; border: none; }
+    .modal-header { border-bottom: 1px solid #F0F0F0; padding: 20px 24px; }
+    .modal-title { font-family: 'Playfair Display', serif; color: var(--azul); font-size: 20px; }
+    .modal-body { padding: 24px; }
+    .modal-footer { border-top: 1px solid #F0F0F0; padding: 16px 24px; }
+    .form-control, .form-select {
+      border: 1.5px solid #E0E7EF;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--azul-claro);
+      box-shadow: 0 0 0 3px rgba(46,125,166,0.12);
+    }
+    .form-label { font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-logo">Viajes<span>App</span></div>
+    <a href="viajes.html" class="btn-volver">← Mis viajes</a>
+  </nav>
+
+	<div class="contenido">
+
+		<!-- Cabecera del viaje -->
+		<div class="viaje-header">
+			<div class="viaje-destino" id="vDestino"></div>
+			<div class="viaje-nombre" id="vNombre">Cargando...</div>
+			<div class="viaje-fechas" id="vFechas"></div>
+			<div class="viaje-descripcion" id="vDescripcion"></div>
+		</div>
+
+		<!-- Tabs -->
+		<div class="tabs">
+			<div class="tab activo" onclick="mostrarPanel('participantes', this)">👥
+				Participantes</div>
+			<div class="tab" onclick="mostrarPanel('gastos', this)">💸
+				Gastos</div>
+			<div class="tab" onclick="mostrarPanel('balance', this)">📊
+				Balance</div>
+			<div class="tab" onclick="mostrarPanel('deudas', this)">🧾
+				Deudas</div>
+		</div>
+
+		<!-- PANEL PARTICIPANTES -->
+		<div class="panel activo" id="panel-participantes">
+			<div class="seccion">
+				<div class="seccion-titulo">
+					Participantes
+					<button class="btn-accion" data-bs-toggle="modal"
+						data-bs-target="#modalParticipante">+ Añadir</button>
+				</div>
+				<div class="lista-participantes" id="listaParticipantes"></div>
+			</div>
+		</div>
+
+		<!-- PANEL GASTOS -->
+		<div class="panel" id="panel-gastos">
+			<div class="seccion">
+				<div class="seccion-titulo">
+					Gastos del viaje
+					<button class="btn-accion" data-bs-toggle="modal"
+						data-bs-target="#modalGasto">+ Añadir gasto</button>
+				</div>
+				<div id="listaGastos">
+					<p style="color: #aaa; font-size: 14px">No hay gastos
+						registrados.</p>
+				</div>
+				<div
+					style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #F0F4F8; display: flex; justify-content: space-between; align-items: center">
+					<span style="font-size: 13px; color: #888">Total gastado</span> <span
+						style="font-size: 20px; font-weight: 600; color: var(--azul)"
+						id="totalGastado">0,00 €</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- PANEL BALANCE -->
+		<div class="panel" id="panel-balance">
+			<div class="seccion">
+				<div class="seccion-titulo">Balance por persona</div>
+				<div id="listaBalance">
+					<p style="color: #aaa; font-size: 14px">Calcula las deudas
+						primero.</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- PANEL DEUDAS -->
+		<div class="panel" id="panel-deudas">
+			<div class="seccion">
+				<div class="seccion-titulo">Liquidación de deudas</div>
+				<div id="listaDeudas">
+					<p style="color: #aaa; font-size: 14px">No hay deudas
+						calculadas.</p>
+				</div>
+				<button class="btn-calcular" onclick="calcularDeudas()">⚡
+					Calcular deudas ahora</button>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Modal añadir participante -->
+	<div class="modal fade" id="modalParticipante" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Añadir participante</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<label class="form-label">Email del usuario</label>
+					<div class="d-flex gap-2">
+						<input type="email" id="pEmail" class="form-control"
+							placeholder="correo@ejemplo.com">
+						<button class="btn-accion" onclick="buscarUsuario()">Buscar</button>
+					</div>
+					<div id="usuarioEncontrado"
+						style="display: none; margin-top: 16px; padding: 12px; background: #EEF4F8; border-radius: 10px; font-size: 14px;">
+						<span id="nombreEncontrado"></span>
+						<button class="btn-accion"
+							style="float: right; font-size: 12px; padding: 4px 12px;"
+							onclick="confirmarParticipante()">Añadir</button>
+					</div>
+					<div id="mensajePart" class="alert mt-3"
+						style="display: none; border-radius: 10px; font-size: 14px;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal añadir gasto -->
+	<div class="modal fade" id="modalGasto" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Registrar gasto</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<label class="form-label">Descripción</label> <input type="text"
+							id="gDescripcion" class="form-control"
+							placeholder="Ej: Cena en restaurante">
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Importe (€)</label> <input type="number"
+							id="gCantidad" step="0.01" class="form-control"
+							placeholder="0.00">
+					</div>
+					<div class="mb-3">
+						<label class="form-label">¿Quién pagó?</label> <select
+							id="gPagador" class="form-select">
+							<option value="">Selecciona un participante</option>
+						</select>
+					</div>
+					<div id="mensajeGasto" class="alert"
+						style="display: none; border-radius: 10px; font-size: 14px;"></div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn-accion" onclick="registrarGasto()">Guardar
+						gasto</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const usuario = JSON.parse(sessionStorage.getItem('usuario'));
+    if (!usuario) window.location.href = 'login.html';
+
+    const params = new URLSearchParams(window.location.search);
+    const viajeId = params.get('id');
+    if (!viajeId) window.location.href = 'viajes.html';
+
+    let participantesCache = [];
+
+    function mostrarPanel(nombre, tab) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('activo'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('activo'));
+      document.getElementById('panel-' + nombre).classList.add('activo');
+      tab.classList.add('activo');
+    }
+
+    function formatFecha(f) {
+      if (!f) return '';
+      return new Date(f).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    // Cargar info del viaje
+    function cargarViaje() {
+      fetch(`/api/viajes/${viajeId}`)
+        .then(r => r.json())
+        .then(v => {
+          document.getElementById('vNombre').textContent = v.nombre;
+          document.getElementById('vDestino').textContent = v.destino || '';
+          document.getElementById('vDescripcion').textContent = v.descripcion || '';
+          document.getElementById('vFechas').textContent =
+            v.fechaInicio ? `${formatFecha(v.fechaInicio)} → ${formatFecha(v.fechaFin)}` : '';
+        });
+    }
+
+    // Cargar participantes
+    function cargarParticipantes() {
+      fetch(`/api/viajes/${viajeId}`)
+        .then(r => r.json())
+        .then(v => {
+          participantesCache = v.participantes || [];
+          const lista = document.getElementById('listaParticipantes');
+          if (participantesCache.length === 0) {
+            lista.innerHTML = '<span style="color:#aaa;font-size:14px">Sin participantes aún.</span>';
+          } else {
+            lista.innerHTML = participantesCache.map(p =>
+              `<span class="badge-part">${p.usuario ? p.usuario.nombre : 'Usuario'}</span>`
+            ).join('');
+          }
+          // Rellenar select del modal de gasto
+          const select = document.getElementById('gPagador');
+          select.innerHTML = '<option value="">Selecciona quién pagó</option>';
+          participantesCache.forEach(p => {
+            if (p.usuario) {
+              const opt = document.createElement('option');
+              opt.value = p.usuario.id;
+              opt.textContent = p.usuario.nombre;
+              select.appendChild(opt);
+            }
+          });
+        });
+    }
+
+    // Cargar gastos
+    function cargarGastos() {
+      fetch(`/api/gastos/viaje/${viajeId}`)
+        .then(r => r.json())
+        .then(gastos => {
+          const lista = document.getElementById('listaGastos');
+          if (gastos.length === 0) {
+            lista.innerHTML = '<p style="color:#aaa;font-size:14px">No hay gastos registrados.</p>';
+            document.getElementById('totalGastado').textContent = '0,00 €';
+            return;
+          }
+          lista.innerHTML = gastos.map(g => `
+            <div class="gasto-item">
+              <div>
+                <div class="gasto-desc">${g.descripcion}</div>
+                <div class="gasto-pagador">Pagado por ${g.pagador ? g.pagador.nombre : '—'}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <span class="gasto-importe">${Number(g.cantidad).toFixed(2)} €</span>
+                <button class="btn-eliminar" onclick="eliminarGasto(${g.id})">Eliminar</button>
+              </div>
+            </div>
+          `).join('');
+          const total = gastos.reduce((s, g) => s + Number(g.cantidad), 0);
+          document.getElementById('totalGastado').textContent = total.toFixed(2) + ' €';
+        });
+    }
+
+    // Cargar deudas
+    function cargarDeudas() {
+      fetch(`/api/deudas/viaje/${viajeId}`)
+        .then(r => r.json())
+        .then(deudas => {
+          const lista = document.getElementById('listaDeudas');
+          if (deudas.length === 0) {
+            lista.innerHTML = '<p style="color:#aaa;font-size:14px">No hay deudas calculadas. Pulsa el botón de abajo.</p>';
+            return;
+          }
+          lista.innerHTML = deudas.map(d => `
+            <div class="deuda-item ${d.pagada ? 'deuda-pagada' : ''}">
+              <div class="deuda-info">
+                <strong>${d.deudor ? d.deudor.nombre : '—'}</strong>
+                debe a
+                <strong style="color:var(--verde)">${d.acreedor ? d.acreedor.nombre : '—'}</strong>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span class="deuda-cantidad">${Number(d.cantidad).toFixed(2)} €</span>
+                ${d.pagada
+                  ? '<span class="badge-pagada">✓ Pagada</span>'
+                  : `<button class="btn-pagar" onclick="marcarPagada(${d.id})">Marcar pagada</button>`
+                }
+              </div>
+            </div>
+          `).join('');
+        });
+    }
+
+    // Añadir participante
+    let usuarioAAnyadir = null;
+
+function buscarUsuario() {
+  const email = document.getElementById('pEmail').value;
+  const msg = document.getElementById('mensajePart');
+  const encontrado = document.getElementById('usuarioEncontrado');
+
+  if (!email) return;
+
+  fetch(`/api/usuarios/buscar?email=${encodeURIComponent(email)}`)
+    .then(res => {
+      if (!res.ok) throw new Error();
+      return res.json();
+    })
+    .then(u => {
+      usuarioAAnyadir = u;
+      document.getElementById('nombreEncontrado').textContent = `✓ ${u.nombre} (${u.email})`;
+      encontrado.style.display = 'block';
+      msg.style.display = 'none';
+    })
+    .catch(() => {
+      encontrado.style.display = 'none';
+      msg.style.display = 'block';
+      msg.className = 'alert alert-danger';
+      msg.textContent = 'No se encontró ningún usuario con ese email.';
+    });
+}
+
+function confirmarParticipante() {
+  const msg = document.getElementById('mensajePart');
+  if (!usuarioAAnyadir) return;
+
+  fetch(`/api/viajes/${viajeId}/participantes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: usuarioAAnyadir.id })
+  })
+  .then(r => {
+    if (!r.ok) throw new Error();
+    bootstrap.Modal.getInstance(document.getElementById('modalParticipante')).hide();
+    document.getElementById('pEmail').value = '';
+    document.getElementById('usuarioEncontrado').style.display = 'none';
+    usuarioAAnyadir = null;
+    cargarParticipantes();
+  })
+  .catch(() => {
+    msg.style.display = 'block';
+    msg.className = 'alert alert-danger';
+    msg.textContent = 'Error al añadir el participante.';
+  });
+}
+
+    // Registrar gasto
+    function registrarGasto() {
+      const msg = document.getElementById('mensajeGasto');
+      const pagadorId = document.getElementById('gPagador').value;
+      const descripcion = document.getElementById('gDescripcion').value;
+      const cantidad = document.getElementById('gCantidad').value;
+
+      if (!descripcion || !cantidad || !pagadorId) {
+        msg.style.display = 'block';
+        msg.className = 'alert alert-danger';
+        msg.textContent = 'Rellena todos los campos.';
+        return;
+      }
+
+      fetch(`/api/gastos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          descripcion,
+          cantidad: parseFloat(cantidad),
+          pagadorId: parseInt(pagadorId),
+          viajeId: parseInt(viajeId)
+        })
+      })
+      .then(r => {
+        if (!r.ok) throw new Error();
+        bootstrap.Modal.getInstance(document.getElementById('modalGasto')).hide();
+        document.getElementById('gDescripcion').value = '';
+        document.getElementById('gCantidad').value = '';
+        msg.style.display = 'none';
+        cargarGastos();
+      })
+      .catch(() => {
+        msg.style.display = 'block';
+        msg.className = 'alert alert-danger';
+        msg.textContent = 'Error al registrar el gasto.';
+      });
+    }
+
+    // Eliminar gasto
+    function eliminarGasto(id) {
+      if (!confirm('¿Eliminar este gasto?')) return;
+      fetch(`/api/gastos/${id}`, { method: 'DELETE' })
+        .then(() => cargarGastos())
+        .catch(() => alert('Error al eliminar el gasto.'));
+    }
+
+    // Calcular deudas
+    function calcularDeudas() {
+      fetch(`/api/deudas/calcular/${viajeId}`, { method: 'POST' })
+        .then(r => r.json())
+        .then(() => cargarDeudas())
+        .catch(() => alert('Error al calcular las deudas.'));
+    }
+
+    // Marcar deuda como pagada
+    function marcarPagada(id) {
+      fetch(`/api/deudas/${id}/pagar`, { method: 'PUT' })
+        .then(() => cargarDeudas())
+        .catch(() => alert('Error al marcar la deuda.'));
+    }
+
+    // Inicializar
+    cargarViaje();
+    cargarParticipantes();
+    cargarGastos();
+    cargarDeudas();
+  </script>
+</body>
+</html>

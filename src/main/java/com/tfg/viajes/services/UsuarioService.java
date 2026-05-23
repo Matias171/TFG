@@ -29,6 +29,10 @@ public class UsuarioService {
 		return usuarioRepository.save(usuario);
 	}
 	
+	public Optional<Usuario> buscarPorEmail(String email) {
+	    return usuarioRepository.findByEmail(email);
+	}
+	
 	// LOGIN comprobando el email y contraseña
 	public Optional<Usuario> login(String email, String password) {
 		Optional<Usuario> usuario = usuarioRepository.findByEmail(email);
