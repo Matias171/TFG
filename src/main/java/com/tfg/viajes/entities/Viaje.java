@@ -3,6 +3,9 @@ package com.tfg.viajes.entities;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -27,6 +30,8 @@ public class Viaje {
 	private Usuario creador;
 
 	@OneToMany(mappedBy = "viaje")
+	// Marca este lado como el "padre" de la relacion, parae vitar bucles infinitos al transformar a JSON
+	@JsonManagedReference
 	private List<Participante> participantes = new ArrayList<>();
 
 	// GETTERS Y SETTERS

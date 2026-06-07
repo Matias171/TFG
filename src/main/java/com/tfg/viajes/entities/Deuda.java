@@ -1,5 +1,7 @@
 package com.tfg.viajes.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -19,6 +21,7 @@ public class Deuda {
 	private Boolean pagada = false;
 	@ManyToOne
 	@JoinColumn(name = "viaje_id")
+	@JsonIgnore  // evita el bucle al serializar deudas
 	private Viaje viaje; // A qué viaje pertenece esta deuda
 
 	// GETTERS AND SETTERS

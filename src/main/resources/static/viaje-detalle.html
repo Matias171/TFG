@@ -381,12 +381,18 @@
 
     let participantesCache = [];
 
-    function mostrarPanel(nombre, tab) {
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('activo'));
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('activo'));
-      document.getElementById('panel-' + nombre).classList.add('activo');
-      tab.classList.add('activo');
-    }
+    function mostrarPanel(nombre, el) {
+    	  document.querySelectorAll('.panel').forEach(p => p.classList.remove('activo'));
+    	  document.querySelectorAll('.tab').forEach(t => t.classList.remove('activo'));
+    	  document.getElementById('panel-' + nombre).classList.add('activo');
+    	  el.classList.add('activo');
+
+    	  // Recargamos datos al cambiar de pestaña para que siempre estén actualizados
+    	  if (nombre === 'participantes') cargarParticipantes();
+    	  if (nombre === 'gastos')        cargarGastos();
+    	  if (nombre === 'deudas')        cargarDeudas();
+    	  if (nombre === 'balance')       cargarBalance();
+    	}
 
     function formatFecha(f) {
       if (!f) return '';
@@ -407,32 +413,39 @@
     }
 
     // Cargar participantes
-    function cargarParticipantes() {
-      fetch(`/api/viajes/${viajeId}`)
-        .then(r => r.json())
-        .then(v => {
-          participantesCache = v.participantes || [];
-          const lista = document.getElementById('listaParticipantes');
-          if (participantesCache.length === 0) {
-            lista.innerHTML = '<span style="color:#aaa;font-size:14px">Sin participantes aún.</span>';
-          } else {
-            lista.innerHTML = participantesCache.map(p =>
-              `<span class="badge-part">${p.usuario ? p.usuario.nombre : 'Usuario'}</span>`
-            ).join('');
-          }
-          // Rellenar select del modal de gasto
-          const select = document.getElementById('gPagador');
-          select.innerHTML = '<option value="">Selecciona quién pagó</option>';
-          participantesCache.forEach(p => {
-            if (p.usuario) {
-              const opt = document.createElement('option');
-              opt.value = p.usuario.id;
-              opt.textContent = p.usuario.nombre;
-              select.appendChild(opt);
-            }
-          });
-        });
-    }
+	function cargarParticipantes() {
+	  // Ahora llamamos al endpoint específico de participantes
+	  fetch(`/api/viajes/${viajeId}/participantes`)
+	    .then(r => r.json())
+	    .then(participantes => {
+	      participantesCache = participantes || [];
+	      const lista = document.getElementById('listaParticipantes');
+	
+	      if (participantesCache.length === 0) {
+	        lista.innerHTML = '<span style="color:#aaa;font-size:14px">Sin participantes aún.</span>';
+	      } else {
+	        lista.innerHTML = participantesCache.map(p =>
+	          `<span class="badge-part">${p.usuario ? p.usuario.nombre : 'Usuario'}</span>`
+	        ).join('');
+	      }
+	
+	      // Rellenar el desplegable del modal de gasto con los participantes
+	      const select = document.getElementById('gPagador');
+	      select.innerHTML = '<option value="">Selecciona quién pagó</option>';
+	      participantesCache.forEach(p => {
+	        if (p.usuario) {
+	          const opt = document.createElement('option');
+	          opt.value = p.usuario.id;
+	          opt.textContent = p.usuario.nombre;
+	          select.appendChild(opt);
+	        }
+	      });
+	    })
+	    .catch(() => {
+	      document.getElementById('listaParticipantes').innerHTML =
+	        '<span style="color:#aaa;font-size:14px">Error al cargar participantes.</span>';
+	    });
+	}
 
     // Cargar gastos
     function cargarGastos() {
@@ -490,6 +503,77 @@
           `).join('');
         });
     }
+    
+    // APARTADO DE BALANCE ------------
+    
+ 	// Calcula y muestra el balance de cada participante
+    function cargarBalance() {
+      // Necesitamos los gastos y los participantes para calcular el balance
+      Promise.all([
+        fetch(`/api/gastos/viaje/${viajeId}`).then(r => r.json()),
+        fetch(`/api/viajes/${viajeId}/participantes`).then(r => r.json())
+      ])
+      .then(([gastos, participantes]) => {
+        const lista = document.getElementById('listaBalance');
+
+        if (participantes.length === 0) {
+          lista.innerHTML = '<p style="color:#aaa;font-size:14px">No hay participantes en este viaje.</p>';
+          return;
+        }
+
+        if (gastos.length === 0) {
+          lista.innerHTML = '<p style="color:#aaa;font-size:14px">No hay gastos registrados aún.</p>';
+          return;
+        }
+
+        // Calculamos cuánto ha pagado cada participante
+        const pagado = {};
+        participantes.forEach(p => {
+          if (p.usuario) pagado[p.usuario.id] = { nombre: p.usuario.nombre, total: 0 };
+        });
+
+        gastos.forEach(g => {
+          if (g.pagador && pagado[g.pagador.id] !== undefined) {
+            pagado[g.pagador.id].total += Number(g.cantidad);
+          }
+        });
+
+        // Total del viaje dividido entre todos los participantes
+        const totalViaje = gastos.reduce((s, g) => s + Number(g.cantidad), 0);
+        const partePorPersona = totalViaje / participantes.length;
+
+        // Generamos el HTML del balance de cada persona
+        lista.innerHTML = Object.values(pagado).map(p => {
+          const balance = p.total - partePorPersona;
+          const balanceTexto = balance.toFixed(2);
+          let claseBalance, textoBalance;
+
+          if (balance > 0.01) {
+            claseBalance = 'balance-positivo';
+            textoBalance = `+${balanceTexto} € (le deben)`;
+          } else if (balance < -0.01) {
+            claseBalance = 'balance-negativo';
+            textoBalance = `${balanceTexto} € (debe)`;
+          } else {
+            claseBalance = 'balance-neutro';
+            textoBalance = '0,00 € (equilibrado)';
+          }
+
+          return `
+            <div class="balance-item">
+              <span class="balance-nombre">${p.nombre}</span>
+              <span class="${claseBalance}">${textoBalance}</span>
+            </div>
+          `;
+        }).join('');
+      })
+      .catch(() => {
+        document.getElementById('listaBalance').innerHTML =
+          '<p style="color:#aaa;font-size:14px">Error al cargar el balance.</p>';
+      });
+    }
+    
+    
 
     // Añadir participante
     let usuarioAAnyadir = null;

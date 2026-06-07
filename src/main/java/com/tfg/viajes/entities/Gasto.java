@@ -2,6 +2,8 @@ package com.tfg.viajes.entities;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -22,6 +24,7 @@ public class Gasto {
 	// A qué viaje pertenece este gasto
 	@ManyToOne
 	@JoinColumn(name = "viaje_id")
+	@JsonIgnore  // evita el bucle al serializar gastos
 	private Viaje viaje;
 
 	// getters y setters

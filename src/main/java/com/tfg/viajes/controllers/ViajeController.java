@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.tfg.viajes.entities.Participante;
 import com.tfg.viajes.entities.Viaje;
+import com.tfg.viajes.repository.ParticipanteRepository;
 import com.tfg.viajes.services.ViajeService;
 
 @RestController
@@ -17,6 +19,9 @@ public class ViajeController {
 
     @Autowired
     private ViajeService viajeService;
+    
+    @Autowired
+    private ParticipanteRepository participanteRepository;
 
     // GET /viajes/usuario/{usuarioId} → viajes de un usuario
     @GetMapping("/usuario/{usuarioId}")
@@ -55,4 +60,12 @@ public class ViajeController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
+    
+    // GET /api/viajes/1/participantes → devuelve los participantes del viaje 1
+    @GetMapping("/{viajeId}/participantes")
+    public List<Participante> getParticipantes(@PathVariable Long viajeId) {
+        return participanteRepository.findByViajeId(viajeId);
+    }
+    
 }

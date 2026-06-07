@@ -258,40 +258,49 @@
     }
 
     function crearViaje() {
-      const msg = document.getElementById('mensajeViaje');
-      const viaje = {
-        nombre: document.getElementById('vNombre').value,
-        destino: document.getElementById('vDestino').value,
-        descripcion: document.getElementById('vDescripcion').value,
-        fechaInicio: document.getElementById('vFechaInicio').value || null,
-        fechaFin: document.getElementById('vFechaFin').value || null
-      };
+    	  const msg = document.getElementById('mensajeViaje');
+    	  const viaje = {
+    	    nombre:      document.getElementById('vNombre').value.trim(),
+    	    destino:     document.getElementById('vDestino').value.trim(),
+    	    descripcion: document.getElementById('vDescripcion').value.trim(),
+    	    fechaInicio: document.getElementById('vFechaInicio').value || null,
+    	    fechaFin:    document.getElementById('vFechaFin').value || null
+    	  };
 
-      if (!viaje.nombre) {
-        msg.style.display = 'block';
-        msg.className = 'alert alert-danger';
-        msg.textContent = 'El nombre del viaje es obligatorio.';
-        return;
-      }
+    	  if (!viaje.nombre) {
+    	    msg.style.display = 'block';
+    	    msg.className = 'alert alert-danger';
+    	    msg.textContent = 'El nombre del viaje es obligatorio.';
+    	    return;
+    	  }
 
-      fetch(`/api/viajes/${usuario.id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(viaje)
-      })
-      .then(res => res.json())
-      .then(() => {
-        bootstrap.Modal.getInstance(document.getElementById('modalViaje')).hide();
-        document.getElementById('formViaje').reset();
-        msg.style.display = 'none';
-        cargarViajes();
-      })
-      .catch(() => {
-        msg.style.display = 'block';
-        msg.className = 'alert alert-danger';
-        msg.textContent = 'Error al crear el viaje.';
-      });
-    }
+    	  // URL correcta: el creadorId va como parámetro ?creadorId=
+    	  // antes estaba mal puesto como /api/viajes/${usuario.id}
+    	  fetch(`/api/viajes?creadorId=${usuario.id}`, {
+    	    method: 'POST',
+    	    headers: { 'Content-Type': 'application/json' },
+    	    body: JSON.stringify(viaje)
+    	  })
+    	  .then(res => {
+    	    if (!res.ok) {
+    	      // Si el servidor devuelve error, lo mostramos
+    	      return res.text().then(err => { throw new Error(err); });
+    	    }
+    	    return res.json();
+    	  })
+    	  .then(() => {
+    	    // Cerramos el modal, limpiamos el form y recargamos la lista
+    	    bootstrap.Modal.getInstance(document.getElementById('modalViaje')).hide();
+    	    document.getElementById('formViaje').reset();
+    	    msg.style.display = 'none';
+    	    cargarViajes(); // ← ahora sí se llama siempre si todo fue bien
+    	  })
+    	  .catch(err => {
+    	    msg.style.display = 'block';
+    	    msg.className = 'alert alert-danger';
+    	    msg.textContent = 'Error al crear el viaje: ' + (err.message || 'inténtalo de nuevo.');
+    	  });
+    	}
 
     cargarViajes();
   </script>

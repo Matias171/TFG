@@ -1,5 +1,7 @@
 package com.tfg.viajes.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,12 +16,15 @@ public class Participante {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
 	// Un participante es la unión de un usuario con un viaje concreto
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
 	private Usuario usuario;
+	
 	@ManyToOne
 	@JoinColumn(name = "viaje_id")
+	@JsonBackReference   // -> Marca este lado como el "hijo" 
 	private Viaje viaje;
 // GETTERS
 

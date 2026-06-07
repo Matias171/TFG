@@ -58,7 +58,7 @@ public class DeudaService {
 
         // calculamos el total y la parte proporcional
         double totalGastado = gastos.stream().mapToDouble(Gasto::getCantidad).sum();
-        double partePorPersona = totalGastado / participantes.size();
+        double partePorPersona = totalGastado / participantes.size(); 
 
         // balance de cada participante: lo que pagó - lo que le toca
         Map<Usuario, Double> balance = new HashMap<>();
