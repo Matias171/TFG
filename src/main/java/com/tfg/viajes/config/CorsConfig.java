@@ -11,7 +11,7 @@ public class CorsConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
 		        .allowedOrigins(
 		                "http://localhost:4200",           // desarrollo local
-		                "viajesapp-frontend.vercel.app"    // producción Vercel (cambia esto después)
+		                "https://viajesapp-frontend.vercel.app"    // producción Vercel (cambia esto después)
 		            )
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*");
