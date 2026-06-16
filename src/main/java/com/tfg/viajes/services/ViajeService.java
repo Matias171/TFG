@@ -50,8 +50,11 @@ public class ViajeService {
         // Primero buscamos en qué viajes participa el usuario
         List<Participante> participaciones = participanteRepository.findByUsuarioId(usuarioId);
 
-        // De cada participación, sacamos el viaje y lo metemos en una lista
-        return participaciones.stream().map(Participante::getViaje).toList();
+        return participaciones.stream()
+                .map(p -> viajeRepository.findById(p.getViaje().getId()).orElse(null))
+                .filter(v -> v != null)
+                .distinct()
+                .toList();
     }
     
     // OBTENER un viaje por su id
@@ -67,6 +70,16 @@ public class ViajeService {
     	
     	Usuario usuario = usuarioRepository.findById(usuarioId).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     	
+        // Comprobamos si el usuario ya es participante del viaje
+        // Buscamos en la lista de participantes del viaje si ya existe ese usuario
+        boolean yaExiste = participanteRepository.findByViajeId(viajeId)
+            .stream()
+            .anyMatch(p -> p.getUsuario().getId().equals(usuarioId));
+        
+        if (yaExiste) {
+            throw new RuntimeException("Este usuario ya es participante del viaje");
+        }
+    	
     	// creamos la relacion entrel el usuario y el viaje
     	Participante participante = new Participante();
     	participante.setViaje(viaje);
@@ -74,5 +87,24 @@ public class ViajeService {
     	
     	return participanteRepository.save(participante);
     }
+    
+    
+	 // ELIMINAR un participante de un viaje
+	 // No se puede eliminar al creador del viaje
+	 public void eliminarParticipante(Long participanteId) {
+	     
+	     Participante participante = participanteRepository.findById(participanteId)
+	         .orElseThrow(() -> new RuntimeException("Participante no encontrado"));
+	     
+	     Viaje viaje = participante.getViaje();
+	     Usuario usuario = participante.getUsuario();
+	     
+	     // Comprobamos que no sea el creador del viaje
+	     if (viaje.getCreador().getId().equals(usuario.getId())) {
+	         throw new RuntimeException("No se puede eliminar al creador del viaje");
+	     }
+	     
+	     participanteRepository.deleteById(participanteId);
+	 }
 
 }

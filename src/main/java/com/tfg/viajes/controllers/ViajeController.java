@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.tfg.viajes.entities.Participante;
 import com.tfg.viajes.entities.Viaje;
 import com.tfg.viajes.repository.ParticipanteRepository;
+import com.tfg.viajes.repository.ViajeRepository;
 import com.tfg.viajes.services.ViajeService;
 
 @RestController
@@ -19,6 +20,9 @@ public class ViajeController {
 
     @Autowired
     private ViajeService viajeService;
+    
+    @Autowired
+    private ViajeRepository viajeRepository;
     
     @Autowired
     private ParticipanteRepository participanteRepository;
@@ -66,6 +70,31 @@ public class ViajeController {
     @GetMapping("/{viajeId}/participantes")
     public List<Participante> getParticipantes(@PathVariable Long viajeId) {
         return participanteRepository.findByViajeId(viajeId);
+    }
+    
+    // PUT /api/viajes/1/completar → marca el viaje como completado
+    @PutMapping("/{id}/completar")
+    public ResponseEntity<?> completarViaje(@PathVariable Long id) {
+        try {
+            Viaje viaje = viajeService.obtenerPorId(id)
+                .orElseThrow(() -> new RuntimeException("Viaje no encontrado"));
+            viaje.setCompletado(true);
+            viajeRepository.save(viaje);
+            return ResponseEntity.ok(viaje);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
+    // DELETE /api/viajes/participantes/1 → elimina el participante con id 1
+    @DeleteMapping("/participantes/{participanteId}")
+    public ResponseEntity<?> eliminarParticipante(@PathVariable Long participanteId) {
+        try {
+            viajeService.eliminarParticipante(participanteId);
+            return ResponseEntity.ok("Participante eliminado");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     
 }

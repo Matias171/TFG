@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
@@ -24,14 +25,16 @@ public class Viaje {
 
 	private LocalDate fechaInicio;
 	private LocalDate fechaFin;
+	
+	// indica si el viaje esta completado
+	private boolean completado = false;
 
 	@ManyToOne
 	@JoinColumn(name = "creador_id")
 	private Usuario creador;
 
 	@OneToMany(mappedBy = "viaje")
-	// Marca este lado como el "padre" de la relacion, parae vitar bucles infinitos al transformar a JSON
-	@JsonManagedReference
+	@JsonIgnore  // Para cortar el bucle infinito 
 	private List<Participante> participantes = new ArrayList<>();
 
 	// GETTERS Y SETTERS
@@ -97,5 +100,13 @@ public class Viaje {
 
 	public void setParticipantes(List<Participante> participantes) {
 		this.participantes = participantes;
+	}
+	
+	public Boolean getCompletado() { 
+		return completado; 
+	}
+	
+	public void setCompletado(Boolean completado) { 
+		this.completado = completado; 
 	}
 }

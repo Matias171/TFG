@@ -55,4 +55,9 @@ public class UsuarioService {
 	public Optional<Usuario> obtenerPorId(Long id){
 		return usuarioRepository.findById(id);
 	}
+	
+	// Guarda un usuario ya existente (para actualizar perfil)
+	public Usuario guardar(Usuario usuario) {
+	    return usuarioRepository.save(usuario);
+	}
 }

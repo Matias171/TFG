@@ -12,7 +12,24 @@ public class Usuario {
     private String password;
     @Column(nullable = false)
     private String nombre;
-    private String fotoPerfil;  // Puede ser null si el usuario no sube foto
+    
+    
+    // campos del perfil de usuario
+    private String apodo;
+    
+    @Column(length = 500)
+    private String descripcion;
+    
+    private String telefono;
+    private String direccion;
+    private String fechaNacimiento;   // formato "DD/MM/YYYY"
+    
+    // la foto se guarda en Base64, es un texto largo asi que usamos @Lob
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String fotoPerfil;
+    
+    
     // GETTERS Y SETTERS
 	public Long getId() {
 		return id;
@@ -44,5 +61,37 @@ public class Usuario {
 	public void setFotoPerfil(String fotoPerfil) {
 		this.fotoPerfil = fotoPerfil;
 	}
+	public String getApodo() {
+		return apodo;
+	}
+	public void setApodo(String apodo) {
+		this.apodo = apodo;
+	}
+	public String getDescripcion() {
+		return descripcion;
+	}
+	public void setDescripcion(String descriptcion) {
+		this.descripcion = descriptcion;
+	}
+	public String getTelefono() {
+		return telefono;
+	}
+	public void setTelefono(String telefono) {
+		this.telefono = telefono;
+	}
+	public String getDireccion() {
+		return direccion;
+	}
+	public void setDireccion(String direccion) {
+		this.direccion = direccion;
+	}
+	public String getFechaNacimiento() {
+		return fechaNacimiento;
+	}
+	public void setFechaNacimiento(String fechaNcimiento) {
+		this.fechaNacimiento = fechaNcimiento;
+	}
+	
+	
     
 }

@@ -1,6 +1,7 @@
 package com.tfg.viajes.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,7 +25,7 @@ public class Participante {
 	
 	@ManyToOne
 	@JoinColumn(name = "viaje_id")
-	@JsonBackReference   // -> Marca este lado como el "hijo" 
+	@JsonIgnore
 	private Viaje viaje;
 // GETTERS
 
